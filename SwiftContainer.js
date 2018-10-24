@@ -57,17 +57,16 @@ class SwiftContainer extends SwiftEntity {
 
     get(name, stream) {
         return this.authenticator.authenticate().then(auth => new Promise((resolve, reject) => {
+            stream.on('error', reject)
+            stream.on('finish', resolve)
             request({
                 method: 'GET',
                 uri: `${auth.url + this.urlSuffix}/${name}`,
                 headers: {
                     'x-auth-token': auth.token
                 }
-            }).on('error', err => {
-                reject(err);
-            }).on('end', () => {
-                resolve();
-            }).pipe(stream);
+            }).on('error', reject)
+              .pipe(stream);
         }));
     }
 }
